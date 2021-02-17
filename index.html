@@ -24,14 +24,23 @@
 //			Création d'une variable "maCarte" qui contiendra... ma carte.
 			maCarte = L.map('Carte')
 //			On donne une position lat lng et un niveau de zoom par défaut
-			maCarte.setView([45.5534,-73.6657], 12)
+			maCarte.setView([45.5534,-73.6657], 11)
 //			On définit notre fond de carte qui téléchargera les tuiles avec l'API Mapbox, vous devez d'abord aller chercher "VOTRE_CLÉ" sur https://account.mapbox.com
  			fondDeCarte = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoid29sb2xvNCIsImEiOiJja2w5dHlhdzAyOW1vMm9ucjIzcTM2bGZjIn0.0e8jV31O_Kkt-U33MFfudQ')
 //			J'attache ce fond de plan à ma carte
 			fondDeCarte.addTo(maCarte)
 
             //  Dans <script><script>, importation d'une couche GeoJSON grâce au plugin "leaflet-ajax"
-            var poly = new L.GeoJSON.AJAX('data/Montreal_v0743.geojson');
+            var poly = new L.GeoJSON.AJAX('data/Montreal_v0743.geojson', {
+				style: {
+					weight: .5,
+					opacity: .5,
+					color: 'white',
+					dashArray: '3',
+					fillOpacity: 0.9,
+					fillColor: 'grey'
+				}
+			})
             poly.addTo(maCarte);
 
             //Ajout de la référence pour les données
