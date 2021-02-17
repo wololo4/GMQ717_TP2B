@@ -5,6 +5,8 @@
 		<meta charset="UTF-8">
 		<!-- Téléchargement de la bibliothèque Leaflet.js -->
 		<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+        <!-- Importation du plugin Leaflet.ajax-->
+		<script src='extension/dist/leaflet.ajax.min.js'></script>
 		<!-- Téléchargement des instructions CSS de Leaflet, qui serviront à styliser les éléments de l'interface de la carte -->
 		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
 		
@@ -22,11 +24,18 @@
 //			Création d'une variable "maCarte" qui contiendra... ma carte.
 			maCarte = L.map('Carte')
 //			On donne une position lat lng et un niveau de zoom par défaut
-			maCarte.setView([45,-73], 3)
+			maCarte.setView([45.5534,-73.6657], 12)
 //			On définit notre fond de carte qui téléchargera les tuiles avec l'API Mapbox, vous devez d'abord aller chercher "VOTRE_CLÉ" sur https://account.mapbox.com
- 			fondDeCarte = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token=VOTRE_CLÉ')
+ 			fondDeCarte = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoid29sb2xvNCIsImEiOiJja2w5dHlhdzAyOW1vMm9ucjIzcTM2bGZjIn0.0e8jV31O_Kkt-U33MFfudQ')
 //			J'attache ce fond de plan à ma carte
 			fondDeCarte.addTo(maCarte)
+
+            //  Dans <script><script>, importation d'une couche GeoJSON grâce au plugin "leaflet-ajax"
+            var poly = new L.GeoJSON.AJAX('data/Montreal_v0743.geojson');
+            poly.addTo(maCarte);
+
+            //Ajout de la référence pour les données
+			maCarte.attributionControl.addAttribution('Fond de plan OSM & MapBox. Données &copy; <a href="http://statisticscanada.ca/">Statistiques Canada</a>');
 		</script>
 	</body>
 </html>
