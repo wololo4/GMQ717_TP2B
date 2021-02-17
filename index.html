@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Un titre</title>
+		<meta charset="UTF-8">
+		<!-- Téléchargement de la bibliothèque Leaflet.js -->
+		<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+		<!-- Téléchargement des instructions CSS de Leaflet, qui serviront à styliser les éléments de l'interface de la carte -->
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+		
+		<style>
+			html, body {height: 100%; margin: 0;}
+			#Carte {width: 100%; height: 100%;}
+		</style>
+	</head>
+	<body>
+		<!--		Création d'un <div> qui contiendra notre carte-->
+		<div id='Carte'></div>
+
+		<!--		Début du script JavaScript-->
+		<script>
+//			Création d'une variable "maCarte" qui contiendra... ma carte.
+			maCarte = L.map('Carte')
+//			On donne une position lat lng et un niveau de zoom par défaut
+			maCarte.setView([45,-73], 3)
+//			On définit notre fond de carte qui téléchargera les tuiles avec l'API Mapbox, vous devez d'abord aller chercher "VOTRE_CLÉ" sur https://account.mapbox.com
+ 			fondDeCarte = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token=VOTRE_CLÉ')
+//			J'attache ce fond de plan à ma carte
+			fondDeCarte.addTo(maCarte)
+		</script>
+	</body>
+</html>
