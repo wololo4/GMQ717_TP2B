@@ -1,0 +1,34 @@
+html, body {height: 100%; margin: 0;}
+#Carte {width: 100%; height: 100%;}
+
+.myDiv {
+    border: 2px outset black;
+    background-color: mediumaquamarine;    
+    text-align: center;
+}
+
+/*	Ajout d'informations de style spécifiques à la boite d'information que nous avons créé*/
+.info {
+    padding: 16px 16px;
+    font: 14px Helvetica;
+    background: cornsilk;
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+}
+.info h4 {
+    margin: 0 0 5px; color: #777;
+}
+/*	Ajout d'informations de style spécifiques à la légende*/
+.legende {
+    text-align: left;
+    line-height: 18px;
+    color: #555;
+}
+.legende i {
+    font: 12px Helvetica;
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 6px;
+    opacity: 0.7;
+}
