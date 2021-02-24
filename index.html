@@ -13,6 +13,38 @@
 		<style>
 			html, body {height: 100%; margin: 0;}
 			#Carte {width: 100%; height: 100%;}
+
+			.myDiv {
+				border: 2px outset black;
+				background-color: mediumaquamarine;    
+				text-align: center;
+			}
+
+			/*	Ajout d'informations de style spécifiques à la boite d'information que nous avons créé*/
+			.info {
+				padding: 16px 16px;
+				font: 14px Helvetica;
+				background: cornsilk;
+				box-shadow: 0 0 15px rgba(0,0,0,0.2);
+				border-radius: 5px;
+			}
+			.info h4 {
+				margin: 0 0 5px; color: #777;
+			}
+			/*	Ajout d'informations de style spécifiques à la légende*/
+			.legende {
+				text-align: left;
+				line-height: 18px;
+				color: #555;
+			}
+			.legende i {
+				font: 12px Helvetica;
+				width: 18px;
+				height: 18px;
+				float: left;
+				margin-right: 6px;
+				opacity: 0.7;
+			}
 		</style>
 	</head>
 	<body>
@@ -21,27 +53,140 @@
 
 		<!--		Début du script JavaScript-->
 		<script>
-//			Création d'une variable "maCarte" qui contiendra... ma carte.
-			maCarte = L.map('Carte')
-//			On donne une position lat lng et un niveau de zoom par défaut
-			maCarte.setView([45.5534,-73.6657], 11)
-//			On définit notre fond de carte qui téléchargera les tuiles avec l'API Mapbox, vous devez d'abord aller chercher "VOTRE_CLÉ" sur https://account.mapbox.com
- 			fondDeCarte = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoid29sb2xvNCIsImEiOiJja2w5dHlhdzAyOW1vMm9ucjIzcTM2bGZjIn0.0e8jV31O_Kkt-U33MFfudQ')
-//			J'attache ce fond de plan à ma carte
-			fondDeCarte.addTo(maCarte)
 
+			// Initialisation d'une carte avec plusieurs fonds de carte
+			// Nous mettons l'adresse de l'API MapBox dans une variable 'mapboxUrl'. Nottez la variable {id} qui sera attribuée plus tard (ligne 39, 40, 41) pour chaque fond de carte. 'votre_clef' doit être remplacé par la clef que vous trouverez sur account.mapbox.com
+			mapboxUrl = 'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoid29sb2xvNCIsImEiOiJja2w5dHlhdzAyOW1vMm9ucjIzcTM2bGZjIn0.0e8jV31O_Kkt-U33MFfudQ'
+			// Création d'une variable dans laquelle nous mettons les informations d'attribution
+			mapboxAttribution = 'Fond de carte &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' + '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' + 'via © <a href="https://www.mapbox.com/">Mapbox</a>'
+			// Création des trois fond de carte en réutilisant les variables précédemment céées
+			light = L.tileLayer(mapboxUrl, {id: 'mapbox/light-v10', attribution: mapboxAttribution})
+			streets = L.tileLayer(mapboxUrl, {id: 'mapbox/streets-v11', attribution: mapboxAttribution})
+			sat = L.tileLayer(mapboxUrl, {id: 'mapbox/satellite-v9', attribution: mapboxAttribution})
+			dark = L.tileLayer(mapboxUrl, {id: 'wololo4/ckl9tyipm19o017p5s14b9z5n', attribution: mapboxAttribution})
+			// Création de l'objet cartographique nque l'on nomme 'map' et à qui l'on passe nos trois fonds de carte
+			maCarte = L.map('Carte', {
+				center: [45.5534,-73.6657],
+				zoom: 11,
+				layers: [sat, light, dark, streets]
+			})
+
+			baseMaps = {
+				"Rues": streets,
+				"Satellite": sat,
+				"Lite": light,
+				"Dark": dark
+			}			
+
+			function classifier(valeur) {
+				if (valeur <= 40000) {
+					couleur = "rgb(202, 0, 32)"
+				} else if (valeur > 40000 && valeur <= 60000) {
+					couleur = "rgb(230, 110, 97)"
+				} else if (valeur > 60000 && valeur <= 80000) {
+					couleur = "rgb(245, 193, 169)"
+				} else if (valeur > 80000 && valeur <= 100000) {
+					couleur = "rgb(247, 247, 247)"
+				} else if (valeur > 100000 && valeur <= 120000) {
+					couleur = "rgb(180, 214, 231)"
+				} else if (valeur > 120000 && valeur <= 200000){
+					couleur = "rgb(99, 169, 207)"
+				} else if (valeur > 200000){
+					couleur = "rgb(5, 113, 176)"
+				} else {
+					couleur = "grey"
+				}
+				return couleur
+			}
+
+			
+			//	Ajout d'un espace pour afficher des informations (une espèce de "boite") qui restera fixe sur la page. Dans Leaflet.js, cet espace est un objet auquel on peut attribuer des méthodes https://leafletjs.com/reference-1.6.0.html#control
+			var info = L.control({position: 'topleft'});
+			info.onAdd = function (maCarte) {
+				this._div = L.DomUtil.create('div', 'info');
+				this.miseAJour();
+				return this._div;
+			}
+			//	Ajout d'une méthode pour mettre à jour le texte de la boite d'information
+			info.miseAJour = function (polygoneSurvole) {
+				if (typeof polygoneSurvole !== 'undefined') {
+					information = 'Aire de diffusion ' + polygoneSurvole.da_number + ' : <b>' + polygoneSurvole.revenu + '$</b>'
+				}
+				else {
+					information = '<em>Pointez une aire de diffusion</em>'
+				}
+				this._div.innerHTML = '<h4>Revenu après impôt médian des ménages en 2015</h4><hr>' + information
+			};
+//			Ajout de la boite à notre carte
+			info.addTo(maCarte)
+			
             //  Dans <script><script>, importation d'une couche GeoJSON grâce au plugin "leaflet-ajax"
             var poly = new L.GeoJSON.AJAX('data/Montreal_v0743.geojson', {
-				style: {
-					weight: .5,
-					opacity: .5,
-					color: 'white',
-					dashArray: '3',
-					fillOpacity: 0.9,
-					fillColor: 'grey'
+				style: function(feature) {
+					return {
+						weight: 1,
+						opacity: .5,
+						color: 'black',
+						dashArray: '3',
+						fillOpacity: 0.9,
+						fillColor: classifier(feature.properties.revenu)
+					}
+				},
+				//	En plus du style, on ajoute des fonctions d'intéraction à chaque polygone grâce à https://leafletjs.com/reference-1.6.0.html#geojson-oneachfeature
+				onEachFeature: function(feature, layer) {
+					layer.on({
+						//	Lorsqu'un "click" est détecté sur un polygone, on adapte la vue (avec https://leafletjs.com/reference-1.6.0.html#map-fitbounds) afin de zoomer sur celui-ci
+						click: function(objetClique) {
+							maCarte.fitBounds(objetClique.target.getBounds());
+						},
+						//	Lorsque "mouseover" est détecté, on change le style du polygone et on met à jour la boite d'information
+						mouseover: function(objetSurvole) {
+							objetSurvole.target.setStyle({
+								weight: 2,
+								color: 'white',
+								dashArray: '',
+								fillOpacity: 0.5
+							});
+							info.miseAJour(objetSurvole.target.feature.properties)
+						},
+						//	Lorsque "mouseout" est détecté, on invoque "resetStyle" sur le polygone (https://leafletjs.com/reference-1.6.0.html#geojson-resetstyle) et on met à jour la boite d'information
+						mouseout: function(objetquiEtaitSurvole) {
+							poly.resetStyle(objetquiEtaitSurvole.target)
+							info.miseAJour()
+						}
+					})
 				}
 			})
             poly.addTo(maCarte);
+
+			//	Création d'une légende avec, encore une fois, la méthode "control" de Leaflet
+			legende = L.control({position: 'bottomright'})
+
+			// Créons deux listes, une pour les diférentes classes et l'autres pour les couleurs correspondantes
+			classes = [0, 40000, 60000, 80000, 100000, 120000, 200000, 300000]
+			palette = ["rgb(202, 0, 32)", "rgb(230, 110, 97)", "rgb(245, 193, 169)", "rgb(247, 247, 247)", "rgb(180, 214, 231)", "rgb(99, 169, 207)", "rgb(5, 113, 176)"]
+
+			// Lorsque la légende est ajoutée à la carte, cette fonction est activée
+			legende.onAdd = function (map) {
+				// création d'un élément <div> dans le DOM
+				div = L.DomUtil.create('div', 'info legende')		
+				labels = []
+				// itération à travers les classes et création des icones sous forme de code HTML
+				for (i = 0; i < classes.length - 1; i++) {
+					labels.push('<i style="background:' + palette[i] + '"></i>' + classes[i] + ' $ à ' + classes[i + 1] + " $<br>")
+				}
+				// injection du code HTML dans la page
+				div.innerHTML = '<h4>Valeur en dollars par année</h4><hr>' + labels.join('<br>') + '</br><i style="background:grey"></i> Pas de données disponible'
+				return div
+			}
+			// Ajout de la légende à la carte
+			legende.addTo(maCarte)
+
+			couches = {
+				"<b>Revenu après impôt médian des ménages en 2015</b>": poly
+			}
+
+			L.control.layers(baseMaps, couches).addTo(maCarte)
 
             //Ajout de la référence pour les données
 			maCarte.attributionControl.addAttribution('Fond de plan OSM & MapBox. Données &copy; <a href="http://statisticscanada.ca/">Statistiques Canada</a>');
